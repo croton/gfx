@@ -11,17 +11,10 @@ else if \SysFileExists(imgfilename) then do
 end
 
 tmpl='<img src="?1" alt="?1" width="?2" height="?3" />'
-outp=cmdOutput('identify -format %wx%h' imgfilename '|sed "s/x/ /g"')
-if outp=.nil then dim='0 0'
-else              dim=outp[1]
-say expand(tmpl, imgfilename dim)
-
-/* Examples
-   -- Use quotes to combine multiple tokens into a single parameter
-   call onelineMerge 'my ?1 template for ?2 on ?3', 'Groovy "all dudes" THU'
-   -- No quotes means a token per parameter
-   call onelineMerge 'my ?1 template for ?2 on ?3', 'Groovy all dudes THU'
-*/
+outp=cmdOut('identify -format %wx%h' imgfilename '|sed "s/x/ /g"')
+if outp~items=0 then dim='0 0'
+else                 dim=outp[1]
+say merge(tmpl, imgfilename dim)
 exit
 
-::requires 'CmdUtils.cls'
+::requires 'UtilRoutines.rex'
