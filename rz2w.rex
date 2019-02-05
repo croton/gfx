@@ -24,6 +24,8 @@ parse var pct wholenum '.' decm
 if decm=0 then pct=wholenum
 outp=fstem'-p'pct~changestr('.','')||'.'fext
 ecmd='imconvert' imgfilename '-resize' pct'%' outp
+-- How to resize to a height ... x[height-value]
+-- 'imconvert' imgfilename '-resize x610' outp
 say ecmd
 ADDRESS CMD ecmd
 exit

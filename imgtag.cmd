@@ -1,2 +1,1 @@
-@echo off
-call img2tag %*
+@call img2tag %*
