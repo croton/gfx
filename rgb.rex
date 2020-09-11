@@ -1,5 +1,13 @@
--- rgb
-parse arg values
+/* rgb - convert to and from RGB */
+arg values
+if values='-?' then do
+  say 'usage: rgb values'
+  say '  example ..'
+  say '  rgb red_value green_value blue_value -> hex value'
+  say '  rgb hex_value -> RGB values'
+  exit
+end
+
 rgbInput=0
 if values~words=1 then result=hex2rgb(values)
 else do
@@ -11,17 +19,29 @@ if rgbInput then say 'RGB' red green blue '->' result
 else             say 'Hex' values '->' result
 exit
 
-/*  */
+/* Convert a windows hex value to RGB */
 hex2rgb: procedure
-parse arg values
-remain=values//65536
-return remain
+  arg decval
+  if \datatype(decval,'W') then return ''
+  bluedivisor=2**16
+  greendivisor=2**8
+  greenq=0
+  redq=0
+  blueq=decval%bluedivisor    -- int division
+  blueqi=decval//bluedivisor  -- remainder
+  if blueqi>0 then do
+    greenq=blueqi%greendivisor
+    redq=blueqi//greendivisor
+  end
+  return left('R='redq,6) left('G='greenq,6) left('B='blueq,6)
 
-/*  */
+/* Convert an RGB value to a windows hex value */
 rgb2hex: procedure
-parse arg red green blue
-if \datatype(red,'W') | red<0 | red>255 then red=0
-if \datatype(green,'W') | green<0 | green>255 then green=0
-if \datatype(blue,'W') | blue<0 | blue>255 then blue=0
-return blue+(green*256)+(red*65536)
+  arg red, green, blue
+  bluefactor=2**16
+  greenfactor=2**8
+  if \datatype(red,'W') | red<0 | red>255 then red=0
+  if \datatype(green,'W') | green<0 | green>255 then green=0
+  if \datatype(blue,'W') | blue<0 | blue>255 then blue=0
+  return red+(green*greenfactor)+(blue*bluefactor)
 

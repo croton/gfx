@@ -13,7 +13,7 @@
   (maximum (green-value 1, green-value 2) - minimum (green-value 1, green-value 2)) +
   (maximum (blue-value 1, blue-value 2) - minimum (blue-value 1, blue-value 2))
 
-  The rage for color brightness difference is 125. The range for color difference is 500.
+  The range for color brightness difference is 125. The range for color difference is 500.
   Suggested message:
     Poor visibility between text and background colors.
   Suggested repair:
@@ -21,17 +21,41 @@
     Store any good color combinations entered by the user and use them as default prompts in the future.
 */
 arg hexcolor1 hexcolor2 .
-color2='ffffff'
-say 'color2 to RGB:' color2 '->' hex2rgb(color2)
-parse value hex2rgb(hexcolor1) with r1 g1 b1
-parse value hex2rgb(hexcolor2) with r2 g2 b2
-bright1=getBrightness(r1, g1, b1)
-bright2=getBrightness(r2, g2, b2)
-say hexcolor1 '('r1 g1 b1') brightness ->' bright1
-say hexcolor2 '('r2 g2 b2') brightness ->' bright2
-say 'Brightness diff:' (bright2-bright1)
-say 'Color diff:' getDiff(r1, r2, g1, g2, b1, b2)
+if (hexcolor1='' | hexcolor2='') then do
+  say 'usage: colorcontrast hexcolor1 hexcolor2'
+  exit
+end
+
+call demo hexcolor1, hexcolor2
+say 'Darker color:' darker(hexcolor2, hexcolor1)
 exit
+
+darker: procedure
+  arg hexcolor1, hexcolor2
+  parse value hex2rgb(hexcolor1) with r1 g1 b1
+  parse value hex2rgb(hexcolor2) with r2 g2 b2
+  brightDiff=getBrightness(r2, g2, b2) - getBrightness(r1, g1, b1)
+  -- Darker colors have lower brightness
+  if brightDiff>0 then return hexcolor1
+  return hexcolor2
+
+demo: procedure
+  arg hexcolor1, hexcolor2
+  parse value hex2rgb(hexcolor1) with r1 g1 b1
+  parse value hex2rgb(hexcolor2) with r2 g2 b2
+  bright1=getBrightness(r1, g1, b1)
+  bright2=getBrightness(r2, g2, b2)
+  say hexcolor1 '('r1 g1 b1') brightness ->' bright1
+  say hexcolor2 '('r2 g2 b2') brightness ->' bright2
+  brightDiff=(bright2-bright1)
+  say 'Brightness diff:' brightDiff
+  colorDiff=getDiff(r1, r2, g1, g2, b1, b2)
+  say 'Color diff:' colorDiff
+  if abs(brightDiff)>=125 then say 'Contrast OK'
+  else say 'Not enough contrast'
+  if colorDiff>=500 then say 'Color variance OK'
+  else say 'Not enough color variance'
+  return
 
 /* Determine color brightness for a given RGB value. */
 getBrightness: procedure
