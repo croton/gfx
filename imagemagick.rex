@@ -21,12 +21,13 @@
   return icmd
 
 ::routine makeGradient public
-  parse arg width color1 color2 outf
+  parse arg width height color1 color2 outf
   if \datatype(width,'W') then width=100
+  if \datatype(height,'W') then height=width
   if color1='' then color1='white'
   if color2='' then color2='black'
   if outf='' then outf='tmp.jpg'
-  icmd='magick -size' width'x'width 'gradient:'color1'-'color2 outf
+  icmd='magick -size' width'x'height 'gradient:'color1'-'color2 outf
   ok=run(icmd)
   if ok<0 then return ''  -- cmd declined, do not store
   return icmd

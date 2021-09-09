@@ -1,4 +1,4 @@
-/* newtablef -- A filter for generating HTML tables */
+/* rgbnamef -- A filter for rgb color data */
 parse arg options
 COLORFILE=value('X2HOME',,'ENVIRONMENT')||'\lists\imgk-colors.xfn'
 if \SysFileExists(COLORFILE) then do

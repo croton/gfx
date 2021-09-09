@@ -2,7 +2,8 @@
    Created 10-29-2018
 */
 parse arg pfx params
-LOGFILE=.stream~new(value('cjp',,'ENVIRONMENT')||'\bak\imt.log')
+-- LOGFILE=.stream~new(value('cjp',,'ENVIRONMENT')||'\bak\imt.log')
+LOGFILE=.stream~new('.\imt.log')
 
 select
   when pfx='c' then call logcmd makeCanvas(params)
