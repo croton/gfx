@@ -1,22 +1,25 @@
 /* Test cropbanner */
-parse arg imgf resizeWidthOnly .
+parse arg imgf w h resizeWidthOnly .
 if imgf='' | \SysFileExists(imgf) then do
   say 'cropbanner - Resize and crop an image to fit the CoC rotating banner'
-  say 'Usage: cropbanner imagefile [resizeWidthOnly]'
+  say 'Usage: cropbanner imagefile target-width target-height [resizeWidthOnly]'
   exit
 end
+if \datatype(w,'W') then w=720
+if \datatype(h,'W') then h=320
 parse var imgf fstem '.' .
-dims=cmdOutputLine('iid  -format %w-%h' imgf)
+dims=cmdTop('iid  -format %w-%h' imgf)
 parse var dims wd '-' ht
 say 'Original dimensions:' wd 'x' ht
-targetWd=720
-targetHt=320
+targetWd=w
+targetHt=h
 tempfile=fstem'-'targetWd'w.jpg'
 resultfile=fstem'-'targetWd'x'targetHt'.jpg'
 pctWd=targetWd/wd*100
 
 -- Resize to a width
-icmd='icv' imgf '-resize' format(pctWd,,2)'%' tempfile
+-- icmd='magick' imgf '-resize' format(pctWd,,2)'%' tempfile
+icmd='magick' imgf '-resize' targetWd tempfile
 say 'Cmd:' icmd
 icmd
 
@@ -27,14 +30,13 @@ end
 if resizeWidthOnly=1 then exit
 
 -- Now query the new height
-ht=cmdOutputLine('iid  -format %h' tempfile)
+ht=cmdTop('iid  -format %h' tempfile)
 say 'New height:' ht
 shaveHt=(ht-targetHt)/2
-icmd='icv' tempfile '-shave 0x'shaveHt resultfile
+icmd='magick' tempfile '-shave 0x'shaveHt resultfile
 say 'Cmd:' icmd
 icmd
 if SysFileExists(resultfile) then 'del' tempfile
-
 exit
 
-::requires 'CmdUtils.cls'
+::requires 'UtilRoutines.rex'

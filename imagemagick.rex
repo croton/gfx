@@ -6,10 +6,14 @@
 
 ::routine makeCanvas public
   parse arg width color outf
+  if width='' then do
+    say 'makeCanvas width color outf'
+    return ''
+  end
   if datatype(width,'W') then isize=width'x'width
   else                        isize=width
   if color='' then color='khaki'
-  if outf='' then outf='tmp.jpg'
+  if outf='' then outf='canvas-'color'x'width'.png'
   icmd='magick -size' isize 'xc:'color outf
   call prompt icmd
   return icmd
@@ -17,6 +21,23 @@
 ::routine makeCanvasClear public
   parse arg inf outf
   icmd='magick' inf '-alpha transparent' outf
+  call prompt icmd
+  return icmd
+
+::routine makeIcon public
+  parse arg inf width name
+  if inf='' then do
+    say 'makeIcon filename width outf'
+    return ''
+  end
+  if \datatype(width,'W') then width=48
+  isize=width'x'width
+  if name='' then do
+    parse var inf fstem '.' .
+    outf=fstem'.ico'
+  end
+  else outf=name'.ico'
+  icmd='magick' inf '-background none -resize' isize '-density' isize outf
   call prompt icmd
   return icmd
 

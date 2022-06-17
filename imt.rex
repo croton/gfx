@@ -9,6 +9,7 @@ select
   when pfx='c' then call logcmd makeCanvas(params)
   when pfx='ct' then call logcmd makeCanvasClear(params)
   when pfx='g' then call logcmd makeGradient(params)
+  when pfx='ico' then call logcmd makeIcon(params)
   when pfx='t' then say 'version' imgkversion()
   otherwise
     call help
@@ -31,5 +32,5 @@ help: procedure
   call showSourceOptions srcfile, 'when pfx'
   return
 
-::requires 'UtilRoutines.rex'
+-- ::requires 'UtilRoutines.rex'
 ::requires 'imagemagick.rex'
