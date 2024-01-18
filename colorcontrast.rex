@@ -20,14 +20,19 @@
     Allow the user to change the poor color combinations.
     Store any good color combinations entered by the user and use them as default prompts in the future.
 */
-arg hexcolor1 hexcolor2 .
+arg hexcolor1 hexcolor2 option
 if (hexcolor1='' | hexcolor2='') then do
-  say 'usage: colorcontrast hexcolor1 hexcolor2'
+  say 'usage: colorcontrast hexcolor1 hexcolor2 [demoLightDark]'
   exit
 end
 
-call demo hexcolor1, hexcolor2
+call compareHexColor hexcolor1, hexcolor2
 say 'Darker color:' darker(hexcolor2, hexcolor1)
+if option<>'' then do
+  dark=darken(hexcolor1, .3)
+  light=lighten(hexcolor1, .3)
+  say 'Hex' hexcolor1 'darker='dark 'lighter='light
+end
 exit
 
 darker: procedure
@@ -39,7 +44,7 @@ darker: procedure
   if brightDiff>0 then return hexcolor1
   return hexcolor2
 
-demo: procedure
+compareHexColor: procedure
   arg hexcolor1, hexcolor2
   parse value hex2rgb(hexcolor1) with r1 g1 b1
   parse value hex2rgb(hexcolor2) with r2 g2 b2
@@ -57,6 +62,21 @@ demo: procedure
   else say 'Not enough color variance'
   return
 
+demoConversions: procedure
+  arg hexcolor1
+  parse value hex2rgb(hexcolor1) with r1 g1 b1
+  bright1=getBrightness(r1, g1, b1)
+  say hexcolor1 '('r1 g1 b1') brightness ->' bright1
+  say '*** Change RGB to HEX for black, white, and seashell ***'
+  say 'RGB 0, 0, 0 = hex' rgb2hex(0,0,0)
+  say 'RGB 255, 255, 255 = hex' rgb2hex(255,255,255)
+  say 'RGB seashell rgb(255,245,238) = hex' rgb2hex(255,245,238)
+  say '*** Change HEX to RGB for black, white, and seashell ***'
+  say 'HEX 000000 = RGB' hex2rgb(000000)
+  say 'HEX FFFFFF = RGB' hex2rgb(FFFFFF)
+  say 'HEX FFF5EE = RGB' hex2rgb(FFF5EE)
+  return
+
 /* Determine color brightness for a given RGB value. */
 getBrightness: procedure
   parse arg r, g, b
@@ -70,6 +90,28 @@ getDiff: procedure
 /* Convert a six-character color hex string to RGB values. */
 hex2rgb: procedure
   parse arg r +2 g +2 b +2
-  -- say '['r g b']'
   return x2d(r) x2d(g) x2d(b)
 
+rgb2hex: procedure
+  arg R, G, B
+  return d2x(R)||d2x(G)||d2x(B)
+
+darken: procedure
+  arg hexcolor, factor
+  if \datatype(factor,'N') then factor=.25
+  parse value hex2rgb(hexcolor) with R G B
+  r2=format(R*(1-factor),,0)
+  g2=format(G*(1-factor),,0)
+  b2=format(B*(1-factor),,0)
+  say 'Darker RGB by' factor':' r2 g2 b2
+  return rgb2hex(r2,g2,b2)
+
+lighten: procedure
+  arg hexcolor, factor
+  if \datatype(factor,'N') then factor=.25
+  parse value hex2rgb(hexcolor) with R G B
+  r2=format(R+(255-R)*factor,,0)
+  g2=format(G+(255-G)*factor,,0)
+  b2=format(B+(255-B)*factor,,0)
+  say 'Lighter RGB by' factor':' r2 g2 b2
+  return rgb2hex(r2,g2,b2)

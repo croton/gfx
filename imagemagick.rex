@@ -5,15 +5,18 @@
   return '0.01'
 
 ::routine makeCanvas public
-  parse arg width color outf
-  if width='' then do
-    say 'makeCanvas width color outf'
+  parse arg dim color outf
+  if dim='' then do
+    say 'makeCanvas dim color outf'
     return ''
   end
-  if datatype(width,'W') then isize=width'x'width
-  else                        isize=width
+  -- Dimension may be expressed as WxH or just W
+  parse var dim width 'x' height
+  if \datatype(width,'W') then width=100
+  if \datatype(height,'W') then height=width
+  isize=width'x'height
   if color='' then color='khaki'
-  if outf='' then outf='canvas-'color'x'width'.png'
+  if outf='' then outf='canvas-'color'-'isize'.png'
   icmd='magick -size' isize 'xc:'color outf
   call prompt icmd
   return icmd
