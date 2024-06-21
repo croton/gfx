@@ -1,4 +1,4 @@
-/* qkcrop - Provide convenience functions to crop an image using cropper. */
+/* qkcrop - Provide higher level image cropping functions. */
 parse arg imgfilename options
 if abbrev('?', imgfilename) then do
   say 'qkcrop - Crop an image horizontally/vertically in segments.'
@@ -64,6 +64,6 @@ cropCmd: procedure
   height=?(axis='Y', imgH/divisions, imgH)
   xpos=?(axis='Y', 0, ?(origin='S', 0, (divisions-segments)*width))
   ypos=?(axis='Y', ?(origin='S', 0, (divisions-segments)*height), 0)
-  return 'cropper' imgfilename width height xpos ypos
+  return 'mgcrop' imgfilename width height xpos ypos
 
 ::requires 'UtilRoutines.rex'

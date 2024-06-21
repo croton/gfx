@@ -123,7 +123,7 @@ report: procedure
   return
 
 help: procedure
-  say 'fdcolor -- A color look-up tool'
+  say 'clz -- Look up color names and values from ImageMagick resource file.'
   say 'Enter one or more RGB values to find name and hex value.'
   say 'commands:'
   parse source . . srcfile .

@@ -1,16 +1,18 @@
 /* Crop sections from header image */
-parse arg imgf y increment
+parse arg imgf y increment cropHeight
 if imgf='' | \SysFileExists(imgf) then do
   say 'crophead - Crop sections from CoC header image'
-  say 'Usage: crophead imagefile [y][increment]'
+  say 'specifying crop height, starting y position, and increment'
+  say 'Usage: crophead imagefile [y][increment][cropHeight]'
   exit
 end
+if \datatype(cropHeight,'W') then cropHeight=280
 parse var imgf fstem '.' .
-dims=cmdOutputLine('iid  -format %w-%h' imgf)
+dims=cmdTop('iid  -format %w-%h' imgf)
 parse var dims wd '-' ht
 
 totalHeight=ht
-cropHeight=280
+-- cropHeight=280
 loops=0
 start=0
 step=15
@@ -21,14 +23,17 @@ if datatype(y,'W') & limit>y then start=y
 if datatype(increment,'W') then
  if limit>(increment+start) then step=increment
 
-say 'Crop image of original dimensions of' wd 'x' ht 'into'
-say 'sections of' cropHeight'px height beginning at' start 'incrementing by' step
+say 'Original dimensions:' wd 'x' ht
+if \askYN('Crop sections of' cropHeight'px height beginning at' start 'incrementing by' step) then do
+  say 'Exiting...'
+  exit
+end
 do i=start by step to limit
   loops=loops+1
   bottomEdge=i+cropHeight
   bottomCut=totalHeight-bottomEdge
   resultfile=fstem'-crop'i'.jpg'
-  icmd='icv' imgf '-crop 0x'cropHeight'+0+'i resultfile
+  icmd='magick' imgf '-crop 0x'cropHeight'+0+'i resultfile
   say ' Crop from' i 'to' bottomEdge 'cut off' bottomCut ':' icmd
   ADDRESS CMD icmd
 end i
@@ -43,4 +48,4 @@ move2folder: procedure
   'move' fspec destination
   return rc
 
-::requires 'CmdUtils.cls'
+::requires 'UtilRoutines.rex'

@@ -1,9 +1,9 @@
-/* imtxt - Create a text banner */
+/* mgbanner - Create a text banner */
 parse arg outf dim bg font fontsize content
 if abbrev('?', outf) then do
-  say 'imtxt - Create a text banner'
-  say 'usage: imtxt outfile dimension backgdcolor font fontsize phrase'
-  say 'example: imtxt msg.jpg 250x50 plum Arial-Black 20 Hi there this is my banner!'
+  say 'mgbanner - Create a text banner'
+  say 'usage: mgbanner outfile dimension backgdcolor font fontsize phrase'
+  say 'example: mgbanner msg.jpg 250x50 plum Arial-Black 20 Hi there this is my banner!'
   exit
 end
 if dim='' then dim='250x150'
@@ -20,5 +20,4 @@ make: procedure
   call prompt icmd
   return
 
-::requires 'UtilRoutines.rex'
 ::requires 'imagemagick.rex'

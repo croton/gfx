@@ -1,12 +1,12 @@
-/* cropper - Crop an image optionally specifying a size and an offset */
+/* mgcrop - Crop an image optionally specifying a size and an offset */
 parse arg imgfilename wd ht xpos ypos
 if abbrev('?', imgfilename) then do
-  say 'cropper - Crop an image optionally specifying a size and an offset'
-  say 'Usage: cropper imgfilename width height xpos ypos'
+  say 'mgcrop - Crop an image optionally specifying a size and an offset'
+  say 'Usage: mgcrop imgfilename width height xpos ypos'
   exit
 end
 else if \SysFileExists(imgfilename) then do
-  say 'cropper: File not found,' imgfilename
+  say 'mgcrop: File not found,' imgfilename
   exit
 end
 if \datatype(xpos,'W') then xpos=0

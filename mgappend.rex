@@ -1,7 +1,7 @@
-/* ipaste - Paste multiple images together into a single one, horizontally or vertically. */
+/* mgappend - Paste multiple images together into a single one, horizontally or vertically. */
 parse arg options
 if abbrev('?', options) then do
-  say 'usage: ipaste filenames [-g gap][-d widthXheight][-o outputfile][-v]'
+  say 'usage: mgappend filenames [-g gap][-d widthXheight][-o outputfile][-v]'
   say 'Options: gap, dimensions, verticalPaste'
   exit
 end

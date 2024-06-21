@@ -6,7 +6,7 @@
 
 ::routine makeCanvas public
   parse arg dim color outf
-  if dim='' then do
+  if abbrev('?',dim) then do
     say 'makeCanvas dim color outf'
     return ''
   end
@@ -29,7 +29,7 @@
 
 ::routine makeIcon public
   parse arg inf width name
-  if inf='' then do
+  if abbrev('?',inf) then do
     say 'makeIcon filename width outf'
     return ''
   end
@@ -55,4 +55,30 @@
   ok=run(icmd)
   if ok<0 then return ''  -- cmd declined, do not store
   return icmd
+
+::routine getChop PUBLIC
+  arg amt, grav
+  chopFrom=getGravity(grav)
+  defaultOption='-chop 0x'amt -- from TOP
+  select
+    when chopFrom='BOTTOM' then return '-gravity south -chop 0x'amt  -- BOTTOM
+    when chopFrom='LEFT' then return '-chop' amt'x0'
+    when chopFrom='RIGHT' then return '-gravity east -chop' amt'x0'
+    otherwise return defaultOption
+  end
+
+::routine getGravity PUBLIC
+  arg grav
+  select
+    when abbrev('TOP', grav) then return 'TOP'
+    when abbrev('BOTTOM', grav) then return 'BOTTOM'
+    when abbrev('LEFT', grav) then return 'LEFT'
+    when abbrev('RIGHT', grav) then return 'RIGHT'
+    otherwise return 'TOP'
+  end
+
+::routine alterName PUBLIC
+  parse arg filestem '.' ext, tag
+  if tag='' then tag='new'
+  return filestem'-'tag'.'ext
 

@@ -1,4 +1,4 @@
-/* ipress -- Image press down, that is, compress image. */
+/* mgpress -- Image press down, that is, compress image. */
 parse arg filename ratio destination
 if filename='' | \SysFileExists(filename) then call help
 call compressImage filename, ratio, destination
@@ -23,8 +23,8 @@ compressImage: procedure
   return
 
 help: procedure
-  say 'ipress - Use ImageMagick to compress (and backup) an image'
-  say 'Usage: ipress imagefilename [qualityPct] [outputDir]'
+  say 'mgpress - Use ImageMagick to compress (and backup) an image'
+  say 'Usage: mgpress imagefilename [qualityPct] [outputDir]'
   say '  default qualityPct = 50'
   exit
 
