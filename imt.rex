@@ -6,8 +6,8 @@ parse arg pfx params
 LOGFILE=.stream~new('.\imt.log')
 
 select
-  when pfx='c' then call logcmd makeCanvas(params)
-  when pfx='ct' then call logcmd makeCanvasClear(params)
+  when pfx='c' then call logcmd setcanvas(word(params,1), word(params,2))
+  when pfx='ct' then call logcmd setcanvasClear(params)
   when pfx='g' then call logcmd makeGradient(params)
   when pfx='ico' then call logcmd makeIcon(params)
   when pfx='t' then say 'version' imgkversion()
@@ -22,6 +22,7 @@ logcmd: procedure expose LOGFILE
     say 'Write to log' LOGFILE
     LOGFILE~lineout(date('s') icmd)
     LOGFILE~close
+    ADDRESS CMD icmd
   end
   return
 
@@ -33,4 +34,4 @@ help: procedure
   return
 
 -- ::requires 'UtilRoutines.rex'
-::requires 'imagemagick.rex'
+::requires 'imgkMacro.rex'

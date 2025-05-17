@@ -12,13 +12,17 @@ select
   when pfx='g' then call findGreen params
   when pfx='b' then call findBlue params
   when pfx='n' then call findByName params
-  when pfx='rgb' then call findRGB params
+  when pfx='rgb' then call name2Rgb params
   otherwise call findAny pfx params
 end
 exit
 
-findRGB: procedure expose COLORFILE
+name2Rgb: procedure expose COLORFILE
   parse arg colorname
+  if colorname='' then do
+    say 'Please provide a color name.'
+    return
+  end
   rc=SysFileSearch(colorname, COLORFILE, 'colors.')
   if colors.0=0 then say ''
   else do i=1 to colors.0
@@ -37,7 +41,7 @@ findByName: procedure expose COLORFILE
   rc=SysFileSearch(colorname, COLORFILE, 'colors.')
   if colors.0=0 then say 'No colors found with value="'colorname'" in' COLORFILE 'rc='rc
   do i=1 to colors.0
-    say i colors.i
+    say colors.i
   end i
   return
 

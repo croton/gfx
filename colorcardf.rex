@@ -1,7 +1,7 @@
-/* colorcardf -- Create a composite image from a list of hexvalues from STDIN.*/
-arg options
-if abbrev('?', options, 1) then do
-  say 'usage: colorcardf'
+/* colortabf -- Create a composite image from a list of hexvalues from STDIN.*/
+arg outfile options
+if abbrev('?', outfile, 1) then do
+  say 'colortabf - Creates a color table from a list of hexvalues and names from STDIN.'
   exit
 end
 
@@ -21,7 +21,8 @@ end
 exit
 
 programEnd:
-  outf='colorcards-'cnt'.png'
+  if outfile='' then outf='colortab-'cnt'.png'
+  else               outf=outfile
   'mgappend' strip(filenames) '-o' outf '-v'
   'del' filenames
   if SysFileExists(outf) then 'jpg' outf
@@ -29,6 +30,10 @@ programEnd:
 
 colorit: procedure
   parse arg hexvalue, name, filename
-  xcmd='magick -size 100x50 xc:'hexvalue
-  note='-pointsize 12 -fill black -gravity northwest -annotate +5+5 "'name hexvalue'"'
+  xcmd='magick -size 200x50 xc:'hexvalue
+  if lightOrDark(hexvalue)=1 then fg='black'
+  else                            fg='snow'
+  note='-pointsize 14 -fill' fg '-gravity northwest -annotate +5+5 "'name hexvalue'"'
   return xcmd note filename
+
+::requires 'colorlib.rex'

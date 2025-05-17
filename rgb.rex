@@ -3,37 +3,30 @@ arg values
 if abbrev('?', values) then do
   say 'usage: rgb values'
   say '  example ..'
-  say '  rgb red_value green_value blue_value -> hex value'
-  say '  rgb hex_value -> RGB values'
+  say '  rgb red green blue -> hex value'
+  say '  rgb #hex_value -> RGB values'
+  say '  rgb windows_value -> RGB values'
   exit
 end
 
-rgbInput=0
-if values~words=1 then result=html2rgb(values)
-else do
-  rgbInput=1
+if words(values)>=3 then do
+  inputType='RGB'
   parse var values red green blue .
   result=rgb2hex(red,green,blue)
 end
-if rgbInput then say left('RGB' red green blue,20,'.') result
-else             say 'Hex' values '->' result
-exit
-
-/* Convert a windows hex value to RGB */
-hex2rgb: procedure
-  arg decval
-  if \datatype(decval,'W') then return ''
-  bluedivisor=2**16
-  greendivisor=2**8
-  greenq=0
-  redq=0
-  blueq=decval%bluedivisor    -- int division
-  blueqi=decval//bluedivisor  -- remainder
-  if blueqi>0 then do
-    greenq=blueqi%greendivisor
-    redq=blueqi//greendivisor
+else do
+  if abbrev(values,'#') then do
+    inputType='HEX'
+    result=html2rgb(substr(values,2))
   end
-  return left('R='redq,6) left('G='greenq,6) left('B='blueq,6)
+  else do
+    inputType='SYS'
+    result=sys2rgb(values)
+  end
+end
+if inputType='RGB' then say left('RGB' red green blue,20,'.') result
+else                    say inputType values '->' result
+exit
 
 rgb2hex: procedure
   arg red, green, blue
@@ -47,6 +40,22 @@ d2hx: procedure
   val=d2x(num)
   if (datatype(val,'N') & val<9) then return '0'val
   return val
+
+/* Convert a windows hex value to RGB */
+sys2rgb: procedure
+  arg decval
+  if \datatype(decval,'W') then return ''
+  bluedivisor=2**16
+  greendivisor=2**8
+  greenq=0
+  redq=0
+  blueq=decval%bluedivisor    -- int division
+  blueqi=decval//bluedivisor  -- remainder
+  if blueqi>0 then do
+    greenq=blueqi%greendivisor
+    redq=blueqi//greendivisor
+  end
+  return left('R='redq,6) left('G='greenq,6) left('B='blueq,6)
 
 /* Convert an RGB value to a windows hex value */
 rgb2sys: procedure

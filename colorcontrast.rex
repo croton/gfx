@@ -22,16 +22,20 @@
 */
 arg hexcolor1 hexcolor2 option
 if (hexcolor1='' | hexcolor2='') then do
-  say 'usage: colorcontrast hexcolor1 hexcolor2 [demoLightDark]'
+  say 'usage: colorcontrast hexcolor1 hexcolor2 [LD|B]'
   exit
 end
 
 call compareHexColor hexcolor1, hexcolor2
 say 'Darker color:' darker(hexcolor2, hexcolor1)
-if option<>'' then do
+if option='LD' then do
   dark=darken(hexcolor1, .3)
   light=lighten(hexcolor1, .3)
   say 'Hex' hexcolor1 'darker='dark 'lighter='light
+end
+else do
+  say 'Show brightness for' hexcolor1 getHexBrightness(hexcolor1)
+
 end
 exit
 
@@ -81,6 +85,11 @@ demoConversions: procedure
 getBrightness: procedure
   parse arg r, g, b
   return ((r*299)+(g*587)+(b*114))/1000
+
+getHexBrightness: procedure
+  parse arg hexcolor
+  parse value hex2rgb(hexcolor) with r g b
+  return getBrightness(r, g, b)
 
 /* Determine color difference for a given RGB value. */
 getDiff: procedure

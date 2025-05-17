@@ -3,17 +3,18 @@ parse arg input
 obj=.FontSampler~new()
 -- say obj
 gif=obj~demoFontByName(input)
-if gif<>.nil then
-  say 'Created GIF of font samples:' gif
+if gif<>.nil then say 'Created GIF of font samples:' gif
 exit
 
 /* --------------------------- Class Definitions ---------------------------- */
 ::class FontSampler public
 ::method fontlist ATTRIBUTE
+::method fonts ATTRIBUTE
 ::method init
   -- expose a b
   use arg a, b
-  self~fontlist='C:\cjptech\ImageMagick-6.8.9-4\fontlist.txt'
+  self~fontlist='C:\Users\celes\cjp\x2\lists\imgk-fonts.xfn'
+  self~fonts=arrayfromfile('C:\Users\celes\cjp\x2\lists\imgk-fonts.xfn')
 
 ::method string
   return 'A FontSampler based on' self~fontlist
@@ -24,22 +25,30 @@ exit
   if fontsize='' then fontsize=14
   if outputfile='' then outputfile='fontsample-'beginWith'.gif'
 
-  fonts=self~getCmd('cat' self~fontlist '| grep -ie "^'beginWith'"')
-  if fonts~size=0 then do
+  fonts=self~getCmd('type' self~fontlist '| grep -ie "^'beginWith'"')
+  ctr=0
+  loop font over self~fonts
+    if abbrev(translate(font), beginWith) then do
+      ctr=ctr+1
+      targetfonts.ctr=font
+    end
+    targetfonts.0=ctr
+  end
+  if targetfonts.0=0 then do
     say 'No fonts found beginning with' beginWith'!'
     return .nil
   end
   ftline=''
   y=10
-  do i=1 to fonts~size
-    say i 'Font' fonts[i]
-    ftline=ftline '-font' fonts[i] '-annotate +5+'y '"'i fonts[i]'"'
+  do i=1 to targetfonts.0
+    say i 'Font' targetfonts.i
+    ftline=ftline '-font' targetfonts.i '-annotate +5+'y '"'i targetfonts.i'"'
     y=y+15
   end
-  imCmd='imconvert -size 165x'y 'xc:skyblue -background skyblue -fill black' ,
+  xcmd='magick -size 165x'y 'xc:skyblue -background skyblue -fill black' ,
         '-pointsize' fontsize ftline outputfile
-  -- say imCmd
-  imCmd
+  say xcmd
+  xcmd
   return outputfile
 
 ::method getCmd
@@ -72,3 +81,5 @@ exit
   outfn=filename~left(xtpos-1)||'-out'||filename~substr(xtpos)
   convert filename cvArgs outfn
   return outfn
+
+::requires 'iolib.rex'

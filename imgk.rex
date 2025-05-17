@@ -1,52 +1,63 @@
 /* imgk -- utility tool */
 parse arg imgfn pfx params
 if abbrev('?', imgfn) then call help
-else if \SysFileExists(imgfn) then call help
+
+w=wordpos('-o',params)
+if w>0 then do; outf=word(params,w+1); params=delword(params,w,2); end; else outf=''
 
 select
-  when pfx='th' then call makeThumb imgfn, params
-  when pfx='thp' then call makeThumbByPct imgfn, params
-  when pfx='cv' then call convertFormat imgfn, params
-  when pfx='ro' then call rotate imgfn, params
-  otherwise 'iid -verbose' imgfn
+  when pfx='tp' then call makeTransparent imgfn, outf
+  when pfx='tp2' then call makeTransparent2 imgfn, outf
+  when pfx='th' then call makeThumb imgfn, params, outf
+  when pfx='thp' then call makeThumbByPercent imgfn, params, outf
+  when pfx='cv' then call convertFormat imgfn, params, outf
+  when pfx='ro' then call prompt rotate(imgfn, params) ?(outf='', setout(imgfn), outf)
+  when pfx='canvas' then call makeCanvas imgfn, params
+  when pfx='preop' then call imgPreop imgfn, params
+  otherwise
+    if SysFileExists(imgfn) then 'iid' imgfn
+    else do
+      say 'File' imgfn 'does not exist. Create it?'
+      call help
+    end
 end
 exit
 
-/* Examples
-   convert -sample 80x40 %1 %out%
-   convert -sample 25%x25% %1 %out%
-*/
 makeThumb: procedure
-  parse arg fn, width height
+  parse arg fn, width height, outf
   if \datatype(width,'W') then do
     say 'usage: makeThumbnail imgfile width height'
     return
   end
-  rc=makeThumbnail(fn, width, height)
-  say 'Created thumb:' rc
-  /*
-  if \datatype(width,'W') then width=10
-  if \datatype(height,'W') then height=10
-  icmd='magick' fn '-trim -resize' width'x'height getOutput(fn)
-  call prompt icmd
-  */
+  icmd=makeThumbnail(fn, width, height)
+  say 'Create thumb:' icmd
+  if outf='' then call prompt icmd setout(fn)
+  else            call prompt icmd outf
   return
 
-makeThumbByPct: procedure
-  parse arg fn, percentage outfn
-  if \datatype(percentage,'N') then percentage=10
-  pct=percentage/100
-  parse value cmdTop('iid  -format %w-%h' fn) with wd '-' ht
-  width=format(wd*pct,,0)
-  height=format(ht*pct,,0)
-  outp=?(outfn='', getOutput(fn), outfn)
-  icmd='magick' fn '-trim -resize' width'x'height outp
-  call prompt icmd
+makeThumbByPercent: procedure
+  parse arg fn, percentage, outf
+  call prompt makeThumbByPct(fn, percentage) outp=?(outf='', setout(fn), outf)
+  return
+
+makeTransparent: procedure
+  parse arg fn, outf
+  call prompt 'magick' fn '-transparent white' ?(outf='', setout(fn), outf)
+  return
+
+makeTransparent2: procedure
+  parse arg fn, outf
+  call prompt 'magick' fn '-alpha transparent' ?(outf='', setout(fn), outf)
+  return
+
+makeCanvas: procedure
+  parse arg fn, dim color
+  call prompt setcanvas(dim, color) fn
   return
 
 /* Examples
   convert between formats, ex. myimg.jpg myimg.png
-  convert %1 %out%
+  convert imgfile outf
 */
 convertFormat: procedure
   parse arg fn, targetExt
@@ -59,25 +70,24 @@ convertFormat: procedure
   end
   return
 
-/* convert -rotate 45 %1 %out% */
-rotate: procedure
-  parse arg fn, rotation
-  if \datatype(rotation,'W') then rotation=45
-  else if abs(rotation)>360 then rotation=rotation//360
-  icmd='magick -rotate' rotation fn getOutput(fn, 'ro'rotation)
-  call prompt icmd
+imgPreop: procedure
+  parse arg fn, maxwidth
+  if abbrev('?', maxwidth) then do
+    say 'usage: imgPreop imgfilename maxwidth'
+    return
+  end
+  if \SysFileExists(fn) then say 'Image file not found:' fn
+  else do
+    if \datatype(maxwidth,'W') then maxwidth=1000
+    parse value getdim(fn) with w h .
+    say 'Pre-optimize images to be no more than twice maximum page width;'
+    say 'Image' fn '('w'x'h') should be resized to no more than' maxwidth*2'px if rendered at max width of' maxwidth'px'
+  end
   return
-
-getOutput: procedure
-  parse arg filestem '.' ext, suffix
-  if suffix='' then outfn=filestem'-out.'ext
-  else              outfn=filestem'-'suffix'.'ext
-  if SysFileExists(outfn) then outfn=filestem'-'time('S')||'.'ext
-  return filespec('N', outfn)
 
 help: procedure
   say 'imgk -- A utility tool, version' 0.1
-  say 'usage: imgk image-filename [options]'
+  say 'usage: imgk image-filename [options][-o outputfile]'
   say 'options:'
   parse source . . srcfile .
   call showSourceOptions srcfile, 'when pfx'
